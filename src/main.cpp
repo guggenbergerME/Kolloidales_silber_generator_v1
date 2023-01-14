@@ -24,13 +24,14 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 unsigned long previousMillis_btckurs = 0;
 unsigned long interval_btckurs = 15000; 
 
-
 /////////////////////////////////////////////////////////////////////////// Funktionsprototypen
 //void callback                (char*, byte*, unsigned int);
 void loop                      ();
-void setup                      ();
+void setup                     ();
+void startwerte                ();
 void tft_text                  (int x, int y, int size, char *text, uint16_t color);
-
+void elektrolyse               ();
+void elektrolyse_umkehren      ();
 
 //**************************************************************************** void SETUP
 void setup() {
@@ -65,6 +66,31 @@ void tft_text(int x, int y, int size, char *text, uint16_t color) {
   tft.print(text);
 }
 
+/////////////////////////////////////////////////////////////////////////// Elektrolyse
+void startwerte () {
+  /*
+  1 Wassermenge abfragen 0,1 Liter schritte
+
+  2 Elektrolyse stärke 50 ppm
+
+  3 Dauer der Elektrolyse berechnen
+
+  4 Prozess starten
+
+  */
+
+}
+
+/////////////////////////////////////////////////////////////////////////// Elektrolyse
+void elektrolyse () {
+
+}
+
+/////////////////////////////////////////////////////////////////////////// Elektrolyse umkehr
+void elektrolyse_umkehren () {
+
+}
+
 /////////////////////////////////////////////////////////////////////////// VOID LOOP
 void loop() {
 
@@ -74,7 +100,6 @@ void loop() {
       // BTC Kurs abfragen
 
     }
-
 
 
 }
