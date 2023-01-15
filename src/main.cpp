@@ -4,29 +4,37 @@
 
 /////////////////////////////////////////////////////////////////////////// TFT Setup
 /*
-#define TFT_MISO 19
-#define TFT_MOSI 23
-#define TFT_SCLK 18
-#define TFT_CS   15  // Chip select control pin
-#define TFT_DC    2  // Data Command control pin
-#define TFT_RST   4  // Reset pin (could connect to RST pin)
+PIN - Belegung
+TFT           ESP WROOM32
+****          ************
+GND           GND
+VCC           VCC
+SCL           D18
+SDA           D23
+RES           D4
+DC            D2
+CS            D6
+BLK           NC
 
-Display
-
+libdeps/esp32/TFT_eSPI/User_Setup.h
 #define TFT_WIDTH  128
 #define TFT_HEIGHT 160
-
+#define ST7735_REDTAB
 */
 
 TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
-// Maximum number of generations until the screen is refreshed
-#define MAX_GEN_COUNT 500
-
+/*
 // The ESP8266 has plenty of memory so we can create a large array
 // 2 x 2 pixel cells, array size = 5120 bytes per array, runs fast
 #define GRIDX 80
 #define GRIDY 64
 #define CELLXY 2
+
+// 1 x 1 pixel cells, array size = 20480 bytes per array
+//#define GRIDX 160
+//#define GRIDY 128
+//#define CELLXY 1
+
 #define GEN_DELAY 10 // Set a delay between each generation to slow things down
 
 //Current grid and newgrid arrays are needed
@@ -37,6 +45,17 @@ uint8_t newgrid[GRIDX][GRIDY];
 
 //Number of generations
 uint16_t genCount = 0;
+*/
+// Color definitions
+#define BLACK 0x0000
+#define BLUE 0x001F
+#define RED 0xF800
+#define GREEN 0x07E0
+#define CYAN 0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW 0xFFE0
+#define WHITE 0xFFFF
+#define BITCOIN 0xFD20
 
 
 /////////////////////////////////////////////////////////////////////////// Intervall der Steuerung
@@ -59,12 +78,20 @@ void setup() {
   Serial.begin(115200);
 
   //Set up the display
+  Serial.println("Display test");
   tft.init();
   tft.setRotation(3);
-  tft.fillScreen(TFT_BLACK);
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
-  tft.setCursor(0, 0);
+ 
+  //Display a simple splash screen
+  tft.fillScreen(BLACK);
+  tft.setTextSize(2);
+  tft.setTextColor(WHITE);
+  tft.setCursor(40, 5);
+  tft.println("Test");
+  tft.setCursor(35, 25);
+  tft.println("Display");
+  tft.setCursor(35, 45);
+  tft.println("esp32");
 
    delay(1500);
 
