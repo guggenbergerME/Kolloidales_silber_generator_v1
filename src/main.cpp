@@ -62,6 +62,9 @@ uint16_t genCount = 0;
 unsigned long previousMillis_btckurs = 0;
 unsigned long interval_btckurs = 15000; 
 
+/////////////////////////////////////////////////////////////////////////// Variablen
+int setup_pulser  = 0;
+
 /////////////////////////////////////////////////////////////////////////// Funktionsprototypen
 //void callback                (char*, byte*, unsigned int);
 void loop                      ();
@@ -77,23 +80,26 @@ void setup() {
   // Serielle Kommunikation starten
   Serial.begin(115200);
 
-  //Set up the display
-  Serial.println("Display test");
+  // Setup TFT Display
   tft.init();
-  tft.setRotation(3);
+  tft.setRotation(3); // Richtung des Textes
  
   //Display a simple splash screen
   tft.fillScreen(BLACK);
   tft.setTextSize(2);
-  tft.setTextColor(WHITE);
-  tft.setCursor(40, 5);
-  tft.println("Test");
-  tft.setCursor(35, 25);
-  tft.println("Display");
-  tft.setCursor(35, 45);
-  tft.println("esp32");
-
-   delay(1500);
+  tft.setTextColor(WHITE,BLACK);
+  tft.setCursor(6, 35); // links - höhe
+  tft.println("SilverPulser");
+  tft.setCursor(60, 75);
+  tft.println("v1.0");
+  delay(1500);
+  tft.fillScreen(BLACK);
+  tft.setCursor(70, 35); // links - höhe
+  tft.println("by");
+  tft.setCursor(16, 75);
+  tft.println("Ruesselheim");
+  delay(1500);
+  tft.fillScreen(BLACK);
 
 }
 
@@ -104,6 +110,30 @@ void tft_text(int x, int y, int size, char *text, uint16_t color) {
 
 /////////////////////////////////////////////////////////////////////////// Elektrolyse
 void startwerte () {
+
+  //tft.fillScreen(BLACK);
+  tft.setTextSize(2);
+  tft.setTextColor(BLUE,BLACK);
+  tft.setCursor(49, 35); // links - höhe
+  tft.println("Setup");
+  tft.setTextColor(BITCOIN,BLACK);
+  tft.setCursor(32, 75);
+  tft.println("Press OK");
+
+  delay(1500);
+
+  /*
+	while( digitalRead(5) == 1 ) //while the button is pressed
+	{
+		//blink
+		digitalWrite(3,HIGH);
+		delay(1000);
+		digitalWrite(3,LOW);
+		delay(1000);
+	}
+
+  */
+
   /*
   1 Wassermenge abfragen 0,1 Liter schritte
 
@@ -130,6 +160,14 @@ void elektrolyse_umkehren () {
 /////////////////////////////////////////////////////////////////////////// VOID LOOP
 void loop() {
 
+// Testen ob nach Neustart Setupwerte vorhanden sind.
+if (setup_pulser == 0) {
+startwerte();
+}
+
+
+  /*
+
   ///////////////////////////////////////////////////////////////////////// BTC Kurs abfragen
   if (millis() - previousMillis_btckurs > interval_btckurs) {
       previousMillis_btckurs = millis();   // aktuelle Zeit abspeichern
@@ -137,5 +175,5 @@ void loop() {
 
     }
 
-
+*/
 }
