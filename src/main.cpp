@@ -23,29 +23,7 @@ libdeps/esp32/TFT_eSPI/User_Setup.h
 */
 
 TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
-/*
-// The ESP8266 has plenty of memory so we can create a large array
-// 2 x 2 pixel cells, array size = 5120 bytes per array, runs fast
-#define GRIDX 80
-#define GRIDY 64
-#define CELLXY 2
 
-// 1 x 1 pixel cells, array size = 20480 bytes per array
-//#define GRIDX 160
-//#define GRIDY 128
-//#define CELLXY 1
-
-#define GEN_DELAY 10 // Set a delay between each generation to slow things down
-
-//Current grid and newgrid arrays are needed
-uint8_t grid[GRIDX][GRIDY];
-
-//The new grid for the next generation
-uint8_t newgrid[GRIDX][GRIDY];
-
-//Number of generations
-uint16_t genCount = 0;
-*/
 // Color definitions
 #define BLACK 0x0000
 #define BLUE 0x001F
@@ -57,13 +35,17 @@ uint16_t genCount = 0;
 #define WHITE 0xFFFF
 #define BITCOIN 0xFD20
 
+/////////////////////////////////////////////////////////////////////////// Interrup
+int taster_okay =  13;
+int taster_f1 =  12;
 
 /////////////////////////////////////////////////////////////////////////// Intervall der Steuerung
 unsigned long previousMillis_btckurs = 0;
 unsigned long interval_btckurs = 15000; 
 
 /////////////////////////////////////////////////////////////////////////// Variablen
-int setup_pulser  = 0;
+int program_point  = 0;
+float wasser_liter = 0.25;
 
 /////////////////////////////////////////////////////////////////////////// Funktionsprototypen
 //void callback                (char*, byte*, unsigned int);
@@ -73,6 +55,7 @@ void startwerte                ();
 void tft_text                  (int x, int y, int size, char *text, uint16_t color);
 void elektrolyse               ();
 void elektrolyse_umkehren      ();
+uint8_t lese_tasten            (void);
 
 //**************************************************************************** void SETUP
 void setup() {
@@ -83,6 +66,10 @@ void setup() {
   // Setup TFT Display
   tft.init();
   tft.setRotation(3); // Richtung des Textes
+
+  // Taster initalisieren
+  pinMode(taster_okay, INPUT);  // Taster OK
+  pinMode(taster_f1, INPUT);  // Taster F1
  
   //Display a simple splash screen
   tft.fillScreen(BLACK);
@@ -108,6 +95,16 @@ void tft_text(int x, int y, int size, char *text, uint16_t color) {
 
 }
 
+/////////////////////////////////////////////////////////////////////////// Taster auslesen
+uint8_t lese_tasten(void) {               // function reads switches and returns 1-7
+  uint8_t zwi_speich = 0;
+  if (digitalRead(taster_okay) == HIGH)
+    zwi_speich = 1;
+  if (digitalRead(taster_f1) == HIGH)
+    zwi_speich += 2;
+  return zwi_speich;
+}
+
 /////////////////////////////////////////////////////////////////////////// Elektrolyse
 void startwerte () {
 
@@ -120,30 +117,42 @@ void startwerte () {
   tft.setCursor(32, 75);
   tft.println("Press OK");
 
-  delay(1500);
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 1;
+    tft.fillScreen(BLACK);
+  }
 
-  /*
-	while( digitalRead(5) == 1 ) //while the button is pressed
-	{
-		//blink
-		digitalWrite(3,HIGH);
-		delay(1000);
-		digitalWrite(3,LOW);
-		delay(1000);
-	}
+}
 
-  */
+/////////////////////////////////////////////////////////////////////////// Wassermenge abfragen
+void wassermenge () {
 
-  /*
-  1 Wassermenge abfragen 0,1 Liter schritte
+  //tft.fillScreen(BLACK);
+  tft.setTextSize(2);
+  tft.setTextColor(BLUE,BLACK);
+  tft.setCursor(3, 35); // links - höhe
+  tft.println("Wassermenge");
+  tft.setTextColor(BLUE,BLACK);
+  tft.setCursor(3, 75);
+  tft.println("Liter ");
+  tft.setCursor(75, 75);
+  tft.println(wasser_liter);
+  delay(200);
 
-  2 Elektrolyse stärke 50 ppm
 
-  3 Dauer der Elektrolyse berechnen
+  // Taste okay
+   if (lese_tasten() == 1) {
+    //delay(500);
+    //program_point = 2;
+    //tft.fillScreen(BLACK);
+  }
 
-  4 Prozess starten
-
-  */
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 2) {
+    wasser_liter += 0.05 ;
+    delay(300);
+  }
 
 }
 
@@ -160,20 +169,24 @@ void elektrolyse_umkehren () {
 /////////////////////////////////////////////////////////////////////////// VOID LOOP
 void loop() {
 
-// Testen ob nach Neustart Setupwerte vorhanden sind.
-if (setup_pulser == 0) {
-startwerte();
+// Programmablauf
+switch(program_point) {
+
+case 0:
+  
+  Serial.println("Case 0 - Startwerte");
+  startwerte();
+
+break;
+
+case 1:
+  
+  Serial.println("Case 1 - Wassermenge abfragen");
+  wassermenge ();
+
+break;
+
 }
 
 
-  /*
-
-  ///////////////////////////////////////////////////////////////////////// BTC Kurs abfragen
-  if (millis() - previousMillis_btckurs > interval_btckurs) {
-      previousMillis_btckurs = millis();   // aktuelle Zeit abspeichern
-      // BTC Kurs abfragen
-
-    }
-
-*/
 }
