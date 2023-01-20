@@ -36,7 +36,8 @@ unsigned long interval_btckurs = 15000;
 /////////////////////////////////////////////////////////////////////////// Variablen
 int program_point  = 0;
 float wasser_liter = 0.50;
-float ppm_wert = 65;
+int ppm_wert = 65;
+int var_umpolzeit = 10;
 
 /////////////////////////////////////////////////////////////////////////// Funktionsprototypen
 //void callback                (char*, byte*, unsigned int);
@@ -44,6 +45,8 @@ void loop                      ();
 void setup                     ();
 void startwerte                ();
 void ppm_setup                 ();
+void umpolzeit                 ();
+void setup_uebersicht          ();
 void tft_text                  (int x, int y, int size, char *text, uint16_t color);
 void elektrolyse               ();
 void elektrolyse_umkehren      ();
@@ -66,17 +69,16 @@ void setup() {
  
   //Display a simple splash screen
   tft.fillScreen(TFT_BLACK);
-  tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE,TFT_BLACK);
-  tft.setCursor(6, 35); // links - höhe
+  tft.setCursor(6, 35,2); // links - höhe
   tft.println("SilverPulser");
-  tft.setCursor(60, 75);
+  tft.setCursor(60, 75,2);
   tft.println("v1.0");
   delay(1500);
   tft.fillScreen(TFT_BLACK);
-  tft.setCursor(70, 35); // links - höhe
+  tft.setCursor(70, 35,2); // links - höhe
   tft.println("by");
-  tft.setCursor(16, 75);
+  tft.setCursor(16, 75,2);
   tft.println("Ruesselheim");
   delay(1500);
   tft.fillScreen(TFT_BLACK);
@@ -106,14 +108,12 @@ uint8_t lese_tasten(void) {               // function reads switches and returns
 /////////////////////////////////////////////////////////////////////////// Elektrolyse
 void startwerte () {
 
-  //tft.fillScreen(BLACK);
-  tft.setTextSize(2);
   tft.setTextColor(TFT_BLUE,TFT_BLACK);
-  tft.setCursor(49, 35); // links - höhe
+  tft.setCursor(20, 35, 2); // links - höhe
   tft.println("Setup");
   tft.setTextColor(TFT_RED,TFT_BLACK);
-  tft.setCursor(32, 75);
-  tft.println("Press OK");
+  tft.setCursor(20, 75, 2);
+  tft.println("weiter -> OK");
 
    if (lese_tasten() == 1) {
     delay(500);
@@ -126,19 +126,17 @@ void startwerte () {
 /////////////////////////////////////////////////////////////////////////// Wassermenge abfragen
 void wassermenge () {
 
-  //tft.fillScreen(BLACK);
-  tft.setTextSize(2);
   tft.setTextColor(TFT_BLUE,TFT_BLACK);
-  tft.setCursor(4, 15); // links - höhe
+  tft.setCursor(5, 5, 2); // links - höhe
   tft.println("Wassermenge");
   tft.setTextColor(TFT_WHITE,TFT_BLACK);
-  tft.setCursor(3, 50);
+  tft.setCursor(5, 50, 2);
   tft.println("Liter ");
-  tft.setCursor(75, 50);
+  tft.setCursor(50, 50, 2);
   tft.println(wasser_liter);
   tft.setTextColor(TFT_RED,TFT_BLACK);
-  tft.setCursor(3, 90);
-  tft.println("OK -> weiter ");
+  tft.setCursor(5, 90, 2);
+  tft.println("weiter -> OK");
   delay(200);
 
 
@@ -179,19 +177,18 @@ void wassermenge () {
 
 /////////////////////////////////////////////////////////////////////////// PPM Setup
 void ppm_setup() {
-//tft.fillScreen(BLACK);
-  tft.setTextSize(2);
+
   tft.setTextColor(TFT_BLUE,TFT_BLACK);
-  tft.setCursor(4, 15); // links - höhe
+  tft.setCursor(5, 5, 2); // links - höhe
   tft.println("PPM Wert");
   tft.setTextColor(TFT_WHITE,TFT_BLACK);
-  tft.setCursor(3, 50);
+  tft.setCursor(5, 50, 2);
   tft.println("PPM ");
-  tft.setCursor(75, 50);
+  tft.setCursor(40, 50, 2);
   tft.println(ppm_wert);
   tft.setTextColor(TFT_RED,TFT_BLACK);
-  tft.setCursor(3, 90);
-  tft.println("OK -> weiter ");
+  tft.setCursor(3, 90, 2);
+  tft.println("weiter -> OK");
   delay(200);
 
 
@@ -222,6 +219,81 @@ void ppm_setup() {
   }  
 
 }
+
+/////////////////////////////////////////////////////////////////////////// PPM Setup
+void setup_uebersicht() {
+//tft.fillScreen(BLACK);
+  //tft.setTextSize(2);
+  tft.setTextColor(TFT_RED,TFT_BLACK);
+  tft.setCursor(1,5,2); // links - höhe - groesse
+  tft.println("Liter");
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
+  tft.setCursor(40,5,2); // links - höhe - groesse
+  tft.println(wasser_liter);
+  tft.setTextColor(TFT_RED,TFT_BLACK);  
+  tft.setCursor(1,35,2); // links - höhe - groesse
+  tft.println("PPM");
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
+  tft.setCursor(40,35,2); // links - höhe - groesse
+  tft.println(ppm_wert);
+
+
+  delay(200);
+
+/*
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 3;
+    tft.fillScreen(TFT_BLACK);
+  }  
+*/
+}
+
+/////////////////////////////////////////////////////////////////////////// PPM Setup
+void umpolzeit() {
+//tft.fillScreen(BLACK);
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
+  tft.setCursor(5, 5,2); // links - höhe
+  tft.println("Umpolzeit");
+  tft.setTextColor(TFT_WHITE,TFT_BLACK);
+  tft.setCursor(5, 50,2);
+  tft.println(var_umpolzeit);
+  tft.setCursor(35, 50,2);
+  tft.println("Sekunden ");
+  tft.setTextColor(TFT_RED,TFT_BLACK);
+  tft.setCursor(3, 90,2);
+  tft.println("OK -> weiter ");
+  delay(200);
+
+
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 2) {
+    if (var_umpolzeit == 30) {
+    } else {
+    var_umpolzeit += 1 ;
+    delay(150);
+    }
+  }
+
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 3) {
+    // Wassermenge beschränken
+    if (var_umpolzeit <= 10) {
+    } else {
+    var_umpolzeit -= 1 ;
+    delay(150);
+    }
+
+  }
+
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 4;
+    tft.fillScreen(TFT_BLACK);
+  }  
+
+}
+
 
 /////////////////////////////////////////////////////////////////////////// Elektrolyse
 void elektrolyse () {
@@ -262,8 +334,15 @@ break;
 
 case 3:
   
-  Serial.println("Case 3 - XXX");
-  //ppm_setup ();
+  Serial.println("Case 3 - Umpolzeit");
+  umpolzeit ();
+
+break;
+
+case 4:
+  
+  Serial.println("Case 4 - Werte anzeigen");
+  setup_uebersicht ();
 
 break;
 
