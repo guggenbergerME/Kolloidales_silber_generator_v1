@@ -24,20 +24,10 @@ libdeps/esp32/TFT_eSPI/User_Setup.h
 
 TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
 
-// Color definitions
-#define BLACK 0x0000
-#define BLUE 0x001F
-#define RED 0xF800
-#define GREEN 0x07E0
-#define CYAN 0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW 0xFFE0
-#define WHITE 0xFFFF
-#define BITCOIN 0xFD20
-
 /////////////////////////////////////////////////////////////////////////// Interrup
 int taster_okay =  13;
 int taster_f1 =  12;
+int taster_f2 =  14;
 
 /////////////////////////////////////////////////////////////////////////// Intervall der Steuerung
 unsigned long previousMillis_btckurs = 0;
@@ -45,13 +35,15 @@ unsigned long interval_btckurs = 15000;
 
 /////////////////////////////////////////////////////////////////////////// Variablen
 int program_point  = 0;
-float wasser_liter = 0.25;
+float wasser_liter = 0.50;
+float ppm_wert = 65;
 
 /////////////////////////////////////////////////////////////////////////// Funktionsprototypen
 //void callback                (char*, byte*, unsigned int);
 void loop                      ();
 void setup                     ();
 void startwerte                ();
+void ppm_setup                 ();
 void tft_text                  (int x, int y, int size, char *text, uint16_t color);
 void elektrolyse               ();
 void elektrolyse_umkehren      ();
@@ -70,23 +62,24 @@ void setup() {
   // Taster initalisieren
   pinMode(taster_okay, INPUT);  // Taster OK
   pinMode(taster_f1, INPUT);  // Taster F1
+  pinMode(taster_f2, INPUT);  // Taster F2
  
   //Display a simple splash screen
-  tft.fillScreen(BLACK);
+  tft.fillScreen(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setTextColor(WHITE,BLACK);
+  tft.setTextColor(TFT_WHITE,TFT_BLACK);
   tft.setCursor(6, 35); // links - höhe
   tft.println("SilverPulser");
   tft.setCursor(60, 75);
   tft.println("v1.0");
   delay(1500);
-  tft.fillScreen(BLACK);
+  tft.fillScreen(TFT_BLACK);
   tft.setCursor(70, 35); // links - höhe
   tft.println("by");
   tft.setCursor(16, 75);
   tft.println("Ruesselheim");
   delay(1500);
-  tft.fillScreen(BLACK);
+  tft.fillScreen(TFT_BLACK);
 
 }
 
@@ -100,8 +93,13 @@ uint8_t lese_tasten(void) {               // function reads switches and returns
   uint8_t zwi_speich = 0;
   if (digitalRead(taster_okay) == HIGH)
     zwi_speich = 1;
+
   if (digitalRead(taster_f1) == HIGH)
     zwi_speich += 2;
+
+  if (digitalRead(taster_f2) == HIGH)
+    zwi_speich += 3;
+
   return zwi_speich;
 }
 
@@ -110,17 +108,17 @@ void startwerte () {
 
   //tft.fillScreen(BLACK);
   tft.setTextSize(2);
-  tft.setTextColor(BLUE,BLACK);
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
   tft.setCursor(49, 35); // links - höhe
   tft.println("Setup");
-  tft.setTextColor(BITCOIN,BLACK);
+  tft.setTextColor(TFT_RED,TFT_BLACK);
   tft.setCursor(32, 75);
   tft.println("Press OK");
 
    if (lese_tasten() == 1) {
     delay(500);
     program_point = 1;
-    tft.fillScreen(BLACK);
+    tft.fillScreen(TFT_BLACK);
   }
 
 }
@@ -130,14 +128,17 @@ void wassermenge () {
 
   //tft.fillScreen(BLACK);
   tft.setTextSize(2);
-  tft.setTextColor(BLUE,BLACK);
-  tft.setCursor(3, 35); // links - höhe
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
+  tft.setCursor(4, 15); // links - höhe
   tft.println("Wassermenge");
-  tft.setTextColor(BLUE,BLACK);
-  tft.setCursor(3, 75);
+  tft.setTextColor(TFT_WHITE,TFT_BLACK);
+  tft.setCursor(3, 50);
   tft.println("Liter ");
-  tft.setCursor(75, 75);
+  tft.setCursor(75, 50);
   tft.println(wasser_liter);
+  tft.setTextColor(TFT_RED,TFT_BLACK);
+  tft.setCursor(3, 90);
+  tft.println("OK -> weiter ");
   delay(200);
 
 
@@ -150,9 +151,75 @@ void wassermenge () {
 
   // Wassermenge erhöhen + 
   if (lese_tasten() == 2) {
-    wasser_liter += 0.05 ;
-    delay(300);
+    if (wasser_liter == 2.50) {
+    } else {
+    wasser_liter += 0.10 ;
+    delay(150);
+    }
   }
+
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 3) {
+    // Wassermenge beschränken
+    if (wasser_liter <= 0.10) {
+    } else {
+    wasser_liter -= 0.10 ;
+    delay(150);
+    }
+
+  }
+
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 2;
+    tft.fillScreen(TFT_BLACK);
+  }  
+
+}
+
+/////////////////////////////////////////////////////////////////////////// PPM Setup
+void ppm_setup() {
+//tft.fillScreen(BLACK);
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_BLUE,TFT_BLACK);
+  tft.setCursor(4, 15); // links - höhe
+  tft.println("PPM Wert");
+  tft.setTextColor(TFT_WHITE,TFT_BLACK);
+  tft.setCursor(3, 50);
+  tft.println("PPM ");
+  tft.setCursor(75, 50);
+  tft.println(ppm_wert);
+  tft.setTextColor(TFT_RED,TFT_BLACK);
+  tft.setCursor(3, 90);
+  tft.println("OK -> weiter ");
+  delay(200);
+
+
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 2) {
+    if (ppm_wert == 100) {
+    } else {
+    ppm_wert += 1 ;
+    delay(150);
+    }
+  }
+
+  // Wassermenge erhöhen + 
+  if (lese_tasten() == 3) {
+    // Wassermenge beschränken
+    if (ppm_wert <= 10) {
+    } else {
+    ppm_wert -= 1 ;
+    delay(150);
+    }
+
+  }
+
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 3;
+    tft.fillScreen(TFT_BLACK);
+  }  
 
 }
 
@@ -183,6 +250,20 @@ case 1:
   
   Serial.println("Case 1 - Wassermenge abfragen");
   wassermenge ();
+
+break;
+
+case 2:
+  
+  Serial.println("Case 2 - PPM");
+  ppm_setup ();
+
+break;
+
+case 3:
+  
+  Serial.println("Case 3 - XXX");
+  //ppm_setup ();
 
 break;
 
