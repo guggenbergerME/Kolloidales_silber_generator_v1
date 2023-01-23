@@ -311,7 +311,7 @@
 #define LOAD_GFXFF  // FreeFonts. Include access to the 48 Adafruit_GFX free fonts FF1 to FF48 and custom fonts
 
 // Comment out the #define below to stop the SPIFFS filing system and smooth font code being loaded
-// this will save ~20kbytes of FLASH
+// this will save ~20kbytes of FLASHGLCD
 //#define SMOOTH_FONT
 
 
