@@ -36,13 +36,13 @@ int taster_f2 =  14;
 int adc_wasser_leitfaehigkeit = 15;
 
 /////////////////////////////////////////////////////////////////////////// Intervall der Steuerung
-unsigned long previousMillis_btckurs = 0;
-unsigned long interval_btckurs = 15000; 
+unsigned long previousMillis_elektrolyse = 0;
+unsigned long interval_elektrolyse = 0; 
 
 /////////////////////////////////////////////////////////////////////////// Variablen
 int program_point  = 0;
-float wasser_liter = 0.10;
-int ppm_wert = 1;
+float wasser_liter = 0.25;
+int ppm_wert = 10;
 int var_umpolzeit = 10;
 int adc_wert_wasser_leitfaehigkeit = 0;
 int elektrolyse_ma = 10; // Angaben in mA
@@ -93,7 +93,7 @@ void setup() {
   delay(2500);
   tft.fillScreen(TFT_BLACK);
   tft.drawString("by", 50, 20, 4);
-  tft.drawString("nix", 35, 65, 4);
+  tft.drawString("Rüsselheim", 15, 65, 4);
   delay(2500);
   tft.fillScreen(TFT_BLACK);
 }
@@ -132,7 +132,7 @@ void startwerte () {
  
    if (lese_tasten() == 1) {
     delay(500);
-    program_point = 1;
+    program_point = 7;
     tft.fillScreen(TFT_BLACK);
   }
 
@@ -464,33 +464,36 @@ void wasser_testen_2() {
 void elektrolyse () {
 
   tft.setTextColor(TFT_GREEN,TFT_BLACK);
-  tft.drawString("Elektrolyse", 2, 0, 4);
+  tft.drawString("Elektrolyse", 5, 5, 4);
 
   // Elektrolysedauer berechnen
   dauer_in_minuten = (((((107.87*elektrolyse_ma*1)/96485)/100)*ppm_wert)*13400)*wasser_liter;
   
    tft.setTextColor(TFT_WHITE,TFT_BLACK);
-  tft.drawString("Dauer in Min", 2, 35, 2);
-  tft.setCursor(88,35,2);
-  tft.println(dauer_in_minuten);  
+  tft.drawString("Dauer in Min", 2, 51, 4);
+  tft.setCursor(55,87,4);
+  tft.println(dauer_in_minuten);
+
+  int delay_wert =  dauer_in_minuten * 60 * 1000;
 
   // Timer ablaufen lassen
-  unsigned long previousMillis_elektrolyse = 0; // Windstärke prüfen
-  unsigned long interval_elektrolyse = 30000; 
-  
 
-  if (millis() - previousMillis_elektrolyse > interval_elektrolyse) {
-      previousMillis_elektrolyse = millis(); 
-      // Windstärke prüfen
-      Serial.println("Elektrolyse ... läuft");
-      
-      program_point = 8;
-      tft.fillScreen(TFT_BLACK);
+   Serial.println("Elektrolyse läuft");
+ 
+  delay(delay_wert);
+
+   Serial.println("Elektrolyse ende");
+   program_point = 8;
+   tft.fillScreen(TFT_BLACK);
+
+ 
      
-  } else {
 
-  }
-  
+      /*
+        program_point = 8;
+        tft.fillScreen(TFT_BLACK);
+        */
+
 
 /*
 
@@ -522,9 +525,15 @@ void elektrolyse_ende () {
   tft.setTextColor(TFT_GREEN,TFT_BLACK);
   tft.drawString("Fertig", 40, 20, 4);
   tft.setTextColor(TFT_WHITE,TFT_BLACK);
-  tft.drawString("Weiter - ", 35, 90, 2);
+  tft.drawString("Erneut - ", 35, 90, 2);
   tft.setTextColor(TFT_GREEN,TFT_BLACK);
   tft.drawString("ok", 95, 90, 2);  
+
+   if (lese_tasten() == 1) {
+    delay(500);
+    program_point = 1;
+    tft.fillScreen(TFT_BLACK);
+  }    
 
 }
 
